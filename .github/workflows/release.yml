@@ -1,0 +1,39 @@
+name: Release
+
+# Pushing a tag like v1.0.0 builds the download, checks that it starts and answers, and publishes it.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build, check and publish the download
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build the download
+        run: ./gradlew distZip --console=plain
+      - name: Check the download runs
+        shell: bash
+        run: |
+          unzip -q build/distributions/strata-1.0.0.zip -d /tmp/dl
+          /tmp/dl/strata-1.0.0/bin/strata put /tmp/db hello world
+          /tmp/dl/strata-1.0.0/bin/strata get /tmp/db hello | grep -q world
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat > release-notes.md <<'NOTES'
+          The LSM-tree storage engine, ready to run. Needs Java 21 or newer.
+
+          1. Download **strata-1.0.0.zip** below and unzip it.
+          2. Run the benchmark: `bin/strata bench 200000` (on Windows: `bin\strata.bat bench 200000`).
+          3. Or use it as a key-value store: `bin/strata put ./data hello world`, then `bin/strata get ./data hello`. `scan`, `stats` and `compact` work too.
+          NOTES
+          gh release create "$GITHUB_REF_NAME" build/distributions/strata-1.0.0.zip --repo "$GITHUB_REPOSITORY" --title "Strata $GITHUB_REF_NAME" --notes-file release-notes.md

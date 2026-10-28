@@ -4,6 +4,7 @@ plugins {
 }
 
 group = "io.github.tendo505"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
