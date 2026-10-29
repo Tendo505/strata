@@ -2,6 +2,10 @@
 
 **An LSM-tree key-value store written from scratch in Java 21**: the storage design behind LevelDB, RocksDB and Cassandra. It has a write-ahead log, memtables, SSTables with Bloom filters, leveled compaction and crash recovery. It is tested against a reference model and by killing the writing process for real.
 
+<p align="center">
+  <img src="docs/overview.png" width="760" alt="strata overview: example usage and architecture">
+</p>
+
 [![CI](https://github.com/Tendo505/strata/actions/workflows/ci.yml/badge.svg)](https://github.com/Tendo505/strata/actions/workflows/ci.yml)
 
 ```java
